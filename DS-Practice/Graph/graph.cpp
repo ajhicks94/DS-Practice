@@ -53,7 +53,7 @@ bool idCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<
 }
 
 void Graph::dfs(){
-
+//TODO
 
 }
 void Graph::bfs(int start){
@@ -73,6 +73,7 @@ void Graph::bfs(int start){
     while (!q.empty()){
         int u = q.front();
         q.pop();
+        //for all nodes connected to u, if distance of that node == inf, set distance to distance of u + 1, and push that node into the queue
         for(list<node>::iterator i = g[u].begin(); i != g[u].end(); ++i){
             if(dist[(*i).id].second == -1){
                 dist[(*i).id].second = dist[u].second + 1;
@@ -80,10 +81,11 @@ void Graph::bfs(int start){
             }
         }
     }
-
+    //sort by distance, then sort by id while retaining distance sort
     std::sort(dist.begin() + 1, dist.end(), distCompare);
     std::stable_sort(dist.begin() + 1, dist.end(), idCompare);
 
+    //print distances
     for(size_t i = 1; i < size; i++){
         cout << dist[i].first << " ";
         if(dist[i].second == -1){
@@ -128,6 +130,7 @@ bool Graph::populateGraph(char* inputfile){
             return false;
         }
 
+        //read file line by line
         while(getline(infile, line)){
 
             istringstream ss(line);
@@ -141,6 +144,7 @@ bool Graph::populateGraph(char* inputfile){
             string item;
             getline(ss, item, ' ');
 
+            //read line item by item and insert an edge for each
             while(getline(ss, item, ' ')){
                 node n;
                 istringstream ns(item);
