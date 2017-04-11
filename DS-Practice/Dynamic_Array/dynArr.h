@@ -1,5 +1,5 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef DYNARR_H
+#define DYNARR_H
 
 template <class T>
 class dynArr{

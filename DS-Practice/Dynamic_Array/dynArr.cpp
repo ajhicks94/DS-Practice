@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "vector.h"
+#include "dynArr.h"
 
 using std::cout;
 using std::copy;
@@ -57,8 +57,7 @@ void dynArr<T>::print(){
 
 template <class T>
 bool dynArr<T>::isEmpty(){
-	bool ret = (maxSize == 0) ? ret = true : ret = false;
-	return ret;
+	return (maxSize == 0) ? true : false;
 }
 
 template <class T>
