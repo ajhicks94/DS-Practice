@@ -1,7 +1,7 @@
 /*
 ** Author:      Anthony Hicks
 ** Class:       CSCE 3110
-** Instructor:  Dr. Eduardo Blanco
+** Instructor:  
 ** Description: Converts a graph from a file to an Adjacency List
 **              and runs BFS, DFS, and Topological Sort
 */
@@ -60,14 +60,15 @@ void Graph::bfs(int start){
     queue<int> q;
     int size = g.size();
 
-    vector< std::pair<int,unsigned int> > dist (size); //pair(vertex_label, distance)
+    vector< std::pair<int,unsigned int> > dist (size); //pair(vertex_id, distance)
 
+    //Set all distances = "infinity"
     for(size_t i = 0; i < size; i++){
         dist[i] = std::make_pair (i, -1);
     }
 
     dist[start].second = 0; //because we're calculating the distance from start node
-    q.push(start); //push 1 into the queue
+    q.push(start); //push start id into the queue
 
     while (!q.empty()){
         int u = q.front();
