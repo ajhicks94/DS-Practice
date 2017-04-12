@@ -26,10 +26,14 @@ using std::list;
 using std::queue;
 using std::pair;
 
+enum State{
+    undiscovered, discovered, finished
+};
+
 class node{
     public:
         int id;
-        unsigned int state; //dfs: undiscovered (0), discovered (1), or finished (2)
+        State state; //dfs: undiscovered (1), discovered (2), or finished (3)
         unsigned int d; //time of discovery
         unsigned int f; //time of finishing
 
@@ -37,19 +41,9 @@ class node{
 };
 
 node::node(){
-    state = 0;
+    state = undiscovered;
     f = 0;
 }
-/*struct node{
-    int id;
-     Note: This wastes space since in an adjacency list, a vertex
-    **       will be in the adjList at least once, and then twice 
-    **       for every edge afterwards
-    
-    int state; //dfs: undiscovered, discovered, or finished
-    int d; //time of discovery
-    int f; //time of finishing
-};*/
 
 class Graph{
     private:
@@ -60,13 +54,12 @@ class Graph{
         void printGraph();
         void bfs(int start);
         void dfs();
-        void dfs_visit(node& n, vector< std::pair<int,node> >& st, int label, unsigned int& t);
+        void dfs_visit(vector<node>& st, int label, unsigned int& t);
         void ts();
         Graph();
 };
 
 bool distCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<int,unsigned int> &secondElement){
-    
     return firstElement.second < secondElement.second;
 }
 
@@ -74,48 +67,52 @@ bool idCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<
     return (firstElement.first < secondElement.first && (firstElement.second == secondElement.second));
 }
 
+bool discoveryCompare(const node &firstElem, const node &secondElem){
+    return firstElem.d < secondElem.d;
+}
 void Graph::dfs(){
     unsigned int t = 0;
-    int size = g.size();
+    size_t size = g.size();
 
-    vector< std::pair<int, node> > states (size);
+    vector<node> states (size);
 
     for(size_t i = 0; i < size; i++){
-        states[i].second.state = 0;
+        states[i].state = undiscovered;
+        states[i].id = i;
     }
 
     for(size_t i = 1; i < size; i++){
-        if(states[i].second.state == 0){
-            dfs_visit(states[i].second, states, i, t);
+        if(states[i].state == undiscovered){
+            dfs_visit(states, i, t);
         }
     }
+
+    sort(states.begin() + 1, states.end(), discoveryCompare);
+
     //print: <node id>_<node_discovery_time> <node_finish_time> 
-    //for(size_t i = 1; i < size; i++){
-        //cout << g[i].front().id << " " << g[i].front().d << " " << g[i].front().f << '\n';
-    //}
-    for(int i = 1; i < states.size(); i++){
-        cout << "Node: " << i << ", state= " << states[i].second.state << ", d= " << states[i].second.d << ", f= " << states[i].second.f << "\n";
+    for(size_t i = 1; i < states.size(); i++){
+        cout << states[i].id << " " << states[i].d << " " << states[i].f << "\n";
     }
 }
 
-void Graph::dfs_visit(node& n, vector< std::pair<int,node> >& st, int label, unsigned int& t){
+void Graph::dfs_visit(vector<node>& st, int label, unsigned int& t){
     t++;
-    st[label].second.d = t;
-    st[label].second.state = 1;
+    st[label].d = t;
+    st[label].state = discovered;
 
     for(list<node>::iterator i = g[label].begin(); i != g[label].end(); ++i){
-        if(st[(*i).id].second.state == 0){
-            dfs_visit(st[(*i).id].second, st, (*i).id, t);
+        if(st[(*i).id].state == undiscovered){
+            dfs_visit(st, (*i).id, t);
         }
     }
     //all nodes deeper than this one are already finished
     t++;
-    st[label].second.state = 2;
-    st[label].second.f = t;
+    st[label].state = finished;
+    st[label].f = t;
 }
 void Graph::bfs(int start){
     queue<int> q;
-    int size = g.size();
+    size_t size = g.size();
 
     vector< std::pair<int,unsigned int> > dist (size); //pair(vertex_id, distance)
 
