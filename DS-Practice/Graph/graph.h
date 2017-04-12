@@ -32,7 +32,7 @@ class Graph{
         void addEdge(int u, node v);
         bool populateGraph(char* inputfile);
         void printGraph();
-        std::vector< pair<int,unsigned int> > bfs(int start);
+        std::vector< std::pair<int,unsigned int> > bfs(int start);
         void print_bfs(std::vector< std::pair<int,unsigned int> > after_bfs);
         std::vector<node> dfs();
         void dfs_visit(std::vector<node>& st, int label, unsigned int& t);
