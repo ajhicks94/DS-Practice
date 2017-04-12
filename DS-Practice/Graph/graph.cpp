@@ -52,8 +52,10 @@ class Graph{
         void addEdge(int u, node v);
         bool populateGraph(char* inputfile);
         void printGraph();
-        void bfs(int start);
-        void dfs();
+        vector< pair<int,unsigned int> > bfs(int start);
+        void print_bfs(vector< pair<int,unsigned int> > after_bfs);
+        vector<node> dfs();
+        void print_dfs(vector<node> after_dfs);
         void dfs_visit(vector<node>& st, int label, unsigned int& t);
         void ts();
         Graph();
@@ -70,7 +72,22 @@ bool idCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<
 bool discoveryCompare(const node &firstElem, const node &secondElem){
     return firstElem.d < secondElem.d;
 }
-void Graph::dfs(){
+
+bool tsCompare(const node &firstElem, const node &secondElem){
+    return firstElem.f > secondElem.f;
+}
+
+void Graph::ts(){
+    vector<node> after_dfs = dfs();
+
+    sort(after_dfs.begin() + 1, after_dfs.end(), tsCompare);
+
+    for(size_t i = 1; i < after_dfs.size(); i++){
+        cout << after_dfs[i].id << '\n';
+    }
+}
+
+vector<node> Graph::dfs(){
     unsigned int t = 0;
     size_t size = g.size();
 
@@ -87,14 +104,17 @@ void Graph::dfs(){
         }
     }
 
-    sort(states.begin() + 1, states.end(), discoveryCompare);
-
-    //print: <node id>_<node_discovery_time> <node_finish_time> 
-    for(size_t i = 1; i < states.size(); i++){
-        cout << states[i].id << " " << states[i].d << " " << states[i].f << "\n";
-    }
+    return states;
 }
 
+void Graph::print_dfs(vector<node> after_dfs){
+    sort(after_dfs.begin() + 1, after_dfs.end(), discoveryCompare);
+
+    for(size_t i = 1; i < after_dfs.size(); i++){
+        //print: <node id>_<node_discovery_time> <node_finish_time>
+        cout << after_dfs[i].id << " " << after_dfs[i].d << " " << after_dfs[i].f << "\n";
+    }
+}
 void Graph::dfs_visit(vector<node>& st, int label, unsigned int& t){
     t++;
     st[label].d = t;
@@ -110,7 +130,7 @@ void Graph::dfs_visit(vector<node>& st, int label, unsigned int& t){
     st[label].state = finished;
     st[label].f = t;
 }
-void Graph::bfs(int start){
+vector< pair<int,unsigned int> > Graph::bfs(int start){
     queue<int> q;
     size_t size = g.size();
 
@@ -135,18 +155,25 @@ void Graph::bfs(int start){
             }
         }
     }
+
+    return dist;
+}
+
+void Graph::print_bfs(vector< pair<int,unsigned int> > after_bfs){
     //sort by distance, then sort by id while retaining distance sort
-    std::sort(dist.begin() + 1, dist.end(), distCompare);
-    std::stable_sort(dist.begin() + 1, dist.end(), idCompare);
+    std::sort(after_bfs.begin() + 1, after_bfs.end(), distCompare);
+    std::stable_sort(after_bfs.begin() + 1, after_bfs.end(), idCompare);
+
+    size_t size = after_bfs.size();
 
     //print distances
     for(size_t i = 1; i < size; i++){
-        cout << dist[i].first << " ";
-        if(dist[i].second == -1){
+        cout << after_bfs[i].first << " ";
+        if(after_bfs[i].second == -1){
             cout << "inf";
         }
         else{
-            cout << dist[i].second << " ";
+            cout << after_bfs[i].second << " ";
         }
         cout << '\n';
     }
@@ -243,19 +270,22 @@ int main(int argc, char* argv[]){
             return -1;
         }
 
-        //graph.printGraph();
-
         string cmd;
         cmd = argv[1];
 
         if(cmd == "bfs"){
-            graph.bfs(bfs_start);
+            //vector<pair<int,unsigned int> after_bfs;
+            //after_bfs = graph.bfs(bfs_start);
+            graph.print_bfs(graph.bfs(bfs_start));
         }
         else if(cmd == "dfs"){
-            graph.dfs();
+            vector<node> after_dfs;
+            after_dfs = graph.dfs();
+            
+            graph.print_dfs(after_dfs);
         }
         else if(cmd == "ts"){
-            //graph.ts();
+            graph.ts();
         }
     }
 
