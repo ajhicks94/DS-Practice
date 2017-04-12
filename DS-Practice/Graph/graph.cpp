@@ -47,7 +47,7 @@ node::node(){
 
 class Graph{
     private:
-        vector< list<node> > g;
+        vector< vector<node> > g;
     public:
         void addEdge(int u, node v);
         bool populateGraph(char* inputfile);
@@ -119,10 +119,10 @@ void Graph::dfs_visit(vector<node>& st, int label, unsigned int& t){
     t++;
     st[label].d = t;
     st[label].state = discovered;
-
-    for(list<node>::iterator i = g[label].begin(); i != g[label].end(); ++i){
-        if(st[(*i).id].state == undiscovered){
-            dfs_visit(st, (*i).id, t);
+    
+    for(size_t i = 1; i < g[label].size(); ++i){
+        if(st[g[label][i].id].state == undiscovered){
+            dfs_visit(st, g[label][i].id, t);
         }
     }
     //all nodes deeper than this one are already finished
@@ -148,7 +148,7 @@ vector< pair<int,unsigned int> > Graph::bfs(int start){
         int u = q.front();
         q.pop();
         //for all nodes connected to u, if distance of that node == inf, set distance to distance of u + 1, and push that node into the queue
-        for(list<node>::iterator i = g[u].begin(); i != g[u].end(); ++i){
+        for(vector<node>::iterator i = g[u].begin(); i != g[u].end(); ++i){
             if(dist[(*i).id].second == -1){
                 dist[(*i).id].second = dist[u].second + 1;
                 q.push((*i).id);
@@ -179,7 +179,7 @@ void Graph::print_bfs(vector< pair<int,unsigned int> > after_bfs){
     }
 }
 Graph::Graph(){
-    g.push_back(list<node>());
+    g.push_back(vector<node>());
 }
 
 void Graph::addEdge(int u, node v){
@@ -191,7 +191,7 @@ void Graph::addEdge(int u, node v){
 
 void Graph::printGraph(){
     for(size_t i = 1; i < g.size(); i++){
-        for(list<node>::iterator j = g[i].begin(); j != g[i].end(); ++j){
+        for(vector<node>::iterator j = g[i].begin(); j != g[i].end(); ++j){
             cout << (*j).id << ' ';
         }
         cout << '\n';
@@ -202,7 +202,6 @@ bool Graph::populateGraph(char* inputfile){
 
         string line;
         ifstream infile;
-        //cout << "Opening file: \"" << inputfile << "\"\n";
 
         infile.open(inputfile); //open the file
 
