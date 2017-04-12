@@ -26,9 +26,30 @@ using std::list;
 using std::queue;
 using std::pair;
 
-struct node{
-    int id;
+class node{
+    public:
+        int id;
+        unsigned int state; //dfs: undiscovered (0), discovered (1), or finished (2)
+        unsigned int d; //time of discovery
+        unsigned int f; //time of finishing
+
+        node();
 };
+
+node::node(){
+    state = 0;
+    f = 0;
+}
+/*struct node{
+    int id;
+     Note: This wastes space since in an adjacency list, a vertex
+    **       will be in the adjList at least once, and then twice 
+    **       for every edge afterwards
+    
+    int state; //dfs: undiscovered, discovered, or finished
+    int d; //time of discovery
+    int f; //time of finishing
+};*/
 
 class Graph{
     private:
@@ -39,6 +60,7 @@ class Graph{
         void printGraph();
         void bfs(int start);
         void dfs();
+        void dfs_visit(node& n, vector< std::pair<int,node> >& st, int label, unsigned int& t);
         void ts();
         Graph();
 };
@@ -53,8 +75,43 @@ bool idCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<
 }
 
 void Graph::dfs(){
-//TODO
+    unsigned int t = 0;
+    int size = g.size();
 
+    vector< std::pair<int, node> > states (size);
+
+    for(size_t i = 0; i < size; i++){
+        states[i].second.state = 0;
+    }
+
+    for(size_t i = 1; i < size; i++){
+        if(states[i].second.state == 0){
+            dfs_visit(states[i].second, states, i, t);
+        }
+    }
+    //print: <node id>_<node_discovery_time> <node_finish_time> 
+    //for(size_t i = 1; i < size; i++){
+        //cout << g[i].front().id << " " << g[i].front().d << " " << g[i].front().f << '\n';
+    //}
+    for(int i = 1; i < states.size(); i++){
+        cout << "Node: " << i << ", state= " << states[i].second.state << ", d= " << states[i].second.d << ", f= " << states[i].second.f << "\n";
+    }
+}
+
+void Graph::dfs_visit(node& n, vector< std::pair<int,node> >& st, int label, unsigned int& t){
+    t++;
+    st[label].second.d = t;
+    st[label].second.state = 1;
+
+    for(list<node>::iterator i = g[label].begin(); i != g[label].end(); ++i){
+        if(st[(*i).id].second.state == 0){
+            dfs_visit(st[(*i).id].second, st, (*i).id, t);
+        }
+    }
+    //all nodes deeper than this one are already finished
+    t++;
+    st[label].second.state = 2;
+    st[label].second.f = t;
 }
 void Graph::bfs(int start){
     queue<int> q;
@@ -154,6 +211,8 @@ bool Graph::populateGraph(char* inputfile){
         }
         infile.close();
 
+        //cout << "Successfully populated graph.\n";
+
         return true;
 }
 
@@ -196,7 +255,7 @@ int main(int argc, char* argv[]){
             graph.bfs(bfs_start);
         }
         else if(cmd == "dfs"){
-            //graph.dfs();
+            graph.dfs();
         }
         else if(cmd == "ts"){
             //graph.ts();
