@@ -10,17 +10,6 @@
 
 #include <vector>
 
-using std::istringstream;
-using std::cout;
-using std::cin;
-using std::getline;
-using std::string;
-using std::ifstream;
-using std::vector;
-using std::list;
-using std::queue;
-using std::pair;
-
 /* DFS States */
 enum State{
     undiscovered, discovered, finished
