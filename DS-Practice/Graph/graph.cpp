@@ -26,6 +26,7 @@ using std::list;
 using std::queue;
 using std::pair;
 
+/* DFS States */
 enum State{
     undiscovered, discovered, finished
 };
@@ -33,20 +34,21 @@ enum State{
 class node{
     public:
         int id;
-        State state; //dfs: undiscovered (1), discovered (2), or finished (3)
-        unsigned int d; //time of discovery
-        unsigned int f; //time of finishing
+        State state;      //dfs: undiscovered (1), discovered (2), or finished (3)
+        unsigned int d;   //time of discovery
+        unsigned int f;   //time of finishing
 
-        node();
+        node();           //Constructor
 };
 
 node::node(){
-    state = undiscovered;
+    state = undiscovered; //initialize all nodes' state to undiscovered and finish time to 0
     f = 0;
 }
 
 class Graph{
-    private:
+    private:              //initially was a vector of lists, but changed it to vector of vectors out of paranoia so 
+                          //*technically* it is still an Adjacency List since the size is not defined initially
         vector< vector<node> > g;
     public:
         void addEdge(int u, node v);
@@ -61,22 +63,37 @@ class Graph{
         Graph();
 };
 
+/*
+** Heuristic for sorting results of BFS by increasing distance
+*/
 bool distCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<int,unsigned int> &secondElement){
     return firstElement.second < secondElement.second;
 }
 
+/*
+** Heuristic for sorting results of BFS also by vertex ID
+*/
 bool idCompare(const std::pair<int,unsigned int> &firstElement, const std::pair<int,unsigned int> &secondElement){
     return (firstElement.first < secondElement.first && (firstElement.second == secondElement.second));
 }
 
+/*
+** Heuristic for sorting results of DFS by increasing discovery time
+*/
 bool discoveryCompare(const node &firstElem, const node &secondElem){
     return firstElem.d < secondElem.d;
 }
 
+/*
+** Heuristic for sorting results of DFS by decreasing finish time, aka TS
+*/
 bool tsCompare(const node &firstElem, const node &secondElem){
     return firstElem.f > secondElem.f;
 }
 
+/*
+** Topological Sort accomplished by running DFS, then sorting the output by decreasing finish time.
+*/
 void Graph::ts(){
     vector<node> after_dfs = dfs();
 
@@ -87,31 +104,37 @@ void Graph::ts(){
     }
 }
 
+/***********************
+** Depth-First Search **
+***********************/
 vector<node> Graph::dfs(){
-    unsigned int t = 0;
+    unsigned int t = 0;                         //time = 0
     size_t size = g.size();
 
-    vector<node> states (size);
+    vector<node> states (size);                 //Create vector of nodes to easily reference values of state/discoveryTime/finishTime
+                                                //and more importantly, to not work with the nodes in the adjacency list, since those nodes are often repeated
 
-    for(size_t i = 0; i < size; i++){
+    for(size_t i = 0; i < size; i++){           //Initialize all of the vertices' states to undiscovered
         states[i].state = undiscovered;
-        states[i].id = i;
+        states[i].id = i;                       
     }
 
-    for(size_t i = 1; i < size; i++){
+    for(size_t i = 1; i < size; i++){           //For all vertices, if they are undiscovered, visit them.
         if(states[i].state == undiscovered){
             dfs_visit(states, i, t);
         }
     }
 
-    return states;
+    return states;                              //Return for customized print function
 }
 
-void Graph::print_dfs(vector<node> after_dfs){
+/*******************************************
+** Customizable Printing Function for DFS **
+*******************************************/
+void Graph::print_dfs(vector<node> after_dfs){  //Sort by discovery time
     sort(after_dfs.begin() + 1, after_dfs.end(), discoveryCompare);
 
     for(size_t i = 1; i < after_dfs.size(); i++){
-        //print: <node id>_<node_discovery_time> <node_finish_time>
         cout << after_dfs[i].id << " " << after_dfs[i].d << " " << after_dfs[i].f << "\n";
     }
 }
@@ -130,24 +153,27 @@ void Graph::dfs_visit(vector<node>& st, int label, unsigned int& t){
     st[label].state = finished;
     st[label].f = t;
 }
+
+/*************************
+** Breadth-First Search **
+*************************/
 vector< pair<int,unsigned int> > Graph::bfs(int start){
     queue<int> q;
     size_t size = g.size();
 
     vector< std::pair<int,unsigned int> > dist (size); //pair(vertex_id, distance)
 
-    //Set all distances = "infinity"
-    for(size_t i = 0; i < size; i++){
-        dist[i] = std::make_pair (i, -1);
+    for(size_t i = 0; i < size; i++){                  //Initialize the distance of all nodes to "infinity"
+        dist[i] = std::make_pair (i, -1);              //I suppose this does limit me to distances that are < UNSIGNED_INT_MAX
     }
 
-    dist[start].second = 0; //because we're calculating the distance from start node
-    q.push(start); //push start id into the queue
+    dist[start].second = 0;                            //Set distance of the starting vertex to 0
+    q.push(start);                                     //Push starting vertex's id into the queue
 
-    while (!q.empty()){
-        int u = q.front();
+    while (!q.empty()){                                //While the queue isn't empty
+        int u = q.front();                             //Pop the next element off
         q.pop();
-        //for all nodes connected to u, if distance of that node == inf, set distance to distance of u + 1, and push that node into the queue
+                                                       //for all nodes connected to u, if we haven't set the distance of that node yet, set distance to distance of u + 1, and push that node into the queue
         for(vector<node>::iterator i = g[u].begin(); i != g[u].end(); ++i){
             if(dist[(*i).id].second == -1){
                 dist[(*i).id].second = dist[u].second + 1;
@@ -158,15 +184,15 @@ vector< pair<int,unsigned int> > Graph::bfs(int start){
 
     return dist;
 }
-
+/****************************************
+** Customizable Print Function for BFS **
+****************************************/
 void Graph::print_bfs(vector< pair<int,unsigned int> > after_bfs){
-    //sort by distance, then sort by id while retaining distance sort
-    std::sort(after_bfs.begin() + 1, after_bfs.end(), distCompare);
+    std::sort(after_bfs.begin() + 1, after_bfs.end(), distCompare);       //Sort by distance, then by ID while retaining the original sort
     std::stable_sort(after_bfs.begin() + 1, after_bfs.end(), idCompare);
 
     size_t size = after_bfs.size();
 
-    //print distances
     for(size_t i = 1; i < size; i++){
         cout << after_bfs[i].first << " ";
         if(after_bfs[i].second == -1){
@@ -178,17 +204,29 @@ void Graph::print_bfs(vector< pair<int,unsigned int> > after_bfs){
         cout << '\n';
     }
 }
+
+/*
+** Constructor for Graph Class
+** Unfortunately, I do not know why I must have this line in order for my code to work.
+** I need to read up on class member variables and their initialization.
+*/
 Graph::Graph(){
     g.push_back(vector<node>());
 }
 
+/*
+** Inserts an "edge" into the adjacency list
+*/
 void Graph::addEdge(int u, node v){
-    if((g.size()) - 1 < u){
+    if((g.size()) - 1 < u){           //I don't know why the vector isn't handling this itself.
         g.resize(u + 1);
     }
     g[u].push_back(v);
 }
 
+/*
+** Prints the Adjacency List, useful for debugging
+*/
 void Graph::printGraph(){
     for(size_t i = 1; i < g.size(); i++){
         for(vector<node>::iterator j = g[i].begin(); j != g[i].end(); ++j){
@@ -198,63 +236,63 @@ void Graph::printGraph(){
     }
     cout << '\n';
 }
+
+/********************************************
+** Populates the Adjacency List from a file**
+*********************************************/
 bool Graph::populateGraph(char* inputfile){
 
-        string line;
-        ifstream infile;
+        string line;                                                   //String to process each line of the file
+        ifstream infile;                                               //Input stream
 
-        infile.open(inputfile); //open the file
+        infile.open(inputfile);                                        //Open the file
 
-        if(!infile.is_open()){
+        if(!infile.is_open()){                                         //If we have a problem opening the file, abort.
             cout << "Error opening file: \"" << inputfile << "\"\n";
             return false;
         }
 
-        //read file line by line
-        while(getline(infile, line)){
+        while(getline(infile, line)){                                  //Read the input line-by-line
 
-            istringstream ss(line);
-            int first;
+            istringstream ss(line);                                    //Stringstream to easily convert data into respective types
+            int first;                                                 //First number on each line is the ID of the vertex
             ss >> first;
 
-            node v;
-            v.id = first;
-            addEdge(first, v);
+            node v;                                                    //Insert the vertex
+            v.id = first;                                              //This does create an Adjacency List where the initial vertex is actually existing twice in the list.
+            addEdge(first, v);                                         //1 -> 1 -> 2 -> 3 -> 4
+                                                                       //2 -> 2 -> 3 
+            string item;                                               //3 -> 3 -> 1 -> 2
+            getline(ss, item, ' ');                                    //4 -> 4 -> 1
 
-            string item;
-            getline(ss, item, ' ');
-
-            //read line item by item and insert an edge for each
-            while(getline(ss, item, ' ')){
-                node n;
+            while(getline(ss, item, ' ')){                             //Read each line item-by-item
+                node n;                                                //Create a node for each item, and insert into the AdjList
                 istringstream ns(item);
                 ns >> n.id;
                 addEdge(first, n);
             }
         }
-        infile.close();
+        infile.close();                                                //Close the file
 
-        //cout << "Successfully populated graph.\n";
-
-        return true;
+        return true;                                                   //Successfully populated the graph
 }
 
 int main(int argc, char* argv[]){
 
-    //Wrong # of args
-    if(argc != 3 && argc != 4){
+    
+    if(argc != 3 && argc != 4){                                        //Wrong number of arguments, print the valid format
         cout << "Incorrect number of arguments provided.\n";
         cout << "Format: ./graph bfs <vertex> inputfile\n";
-        cout << "        ./graph bfs inputfile\n";
+        cout << "        ./graph bfs inputfile\n";                     //BFS will default to vertex with ID=1
         cout << "        ./graph dfs inputfile\n";
         cout << "        ./graph ts inputfile\n";
         return 0;
     }
     else{
-        Graph graph;
+        Graph graph;                                                   //Construct our graph object
         char* inputFile;
         int bfs_start;
-
+                                                                       //Determine which argument is the input file and the starting vertex for BFS
         if(argc == 3){
             inputFile = argv[2];
             bfs_start = 1;
@@ -264,26 +302,21 @@ int main(int argc, char* argv[]){
             bfs_start = argv[2][0] - 48;
         }
 
-        if(!graph.populateGraph(inputFile)){
+        if(!graph.populateGraph(inputFile)){                           //Populate the graph and return an error if there was an issue
             cout << "Error populating graph.\n";
             return -1;
         }
 
-        string cmd;
+        string cmd;                                                    //Determine which algorithm to run
         cmd = argv[1];
 
-        if(cmd == "bfs"){
-            //vector<pair<int,unsigned int> after_bfs;
-            //after_bfs = graph.bfs(bfs_start);
+        if(cmd == "bfs"){                                              //Run BFS and print
             graph.print_bfs(graph.bfs(bfs_start));
         }
-        else if(cmd == "dfs"){
-            vector<node> after_dfs;
-            after_dfs = graph.dfs();
-            
-            graph.print_dfs(after_dfs);
+        else if(cmd == "dfs"){                                         //Run DFS and print
+            graph.print_dfs(graph.dfs());
         }
-        else if(cmd == "ts"){
+        else if(cmd == "ts"){                                          //Run TS and print
             graph.ts();
         }
     }
