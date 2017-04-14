@@ -16,6 +16,7 @@ int main(int argc, char* argv[]){
         cout << "        ./a.out bfs inputfile\n";                     //BFS will default to vertex with ID=1
         cout << "        ./a.out dfs inputfile\n";
         cout << "        ./a.out ts inputfile\n";
+        cout << "        ./a.out isConnected inputfile\n";
         return 0;
     }
     else{
