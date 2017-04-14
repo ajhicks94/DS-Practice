@@ -1,7 +1,7 @@
 /*
 ** Author:      Anthony Hicks
 ** Class:       CSCE 3110
-** Instructor:  
+** Instructor:  Dr. Eduardo Blanco
 ** Description: Converts a graph from a file to an Adjacency List
 **              and runs BFS, DFS, and Topological Sort
 */
@@ -12,10 +12,10 @@ int main(int argc, char* argv[]){
     
     if(argc != 3 && argc != 4){                                        //Wrong number of arguments, print the valid format
         cout << "Incorrect number of arguments provided.\n";
-        cout << "Format: ./graph bfs <vertex> inputfile\n";
-        cout << "        ./graph bfs inputfile\n";                     //BFS will default to vertex with ID=1
-        cout << "        ./graph dfs inputfile\n";
-        cout << "        ./graph ts inputfile\n";
+        cout << "Format: ./a.out bfs <vertex> inputfile\n";
+        cout << "        ./a.out bfs inputfile\n";                     //BFS will default to vertex with ID=1
+        cout << "        ./a.out dfs inputfile\n";
+        cout << "        ./a.out ts inputfile\n";
         return 0;
     }
     else{
@@ -48,6 +48,12 @@ int main(int argc, char* argv[]){
         }
         else if(cmd == "ts"){                                          //Run TS and print
             graph.ts();
+        }
+        else if(cmd == "isConnected"){
+            if(graph.isConnected(graph.bfs(bfs_start))){
+                cout << "yes\n";
+            }
+            else cout << "no\n";
         }
     }
 

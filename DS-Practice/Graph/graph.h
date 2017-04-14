@@ -1,7 +1,7 @@
 /*
 ** Author:      Anthony Hicks
 ** Class:       CSCE 3110
-** Instructor:  
+** Instructor:  Dr. Eduardo Blanco
 ** Description: Converts a graph from a file to an Adjacency List
 **              and runs BFS, DFS, and Topological Sort
 */
@@ -38,6 +38,7 @@ class Graph{
         void dfs_visit(std::vector<node>& st, int label, unsigned int& t);
         void print_dfs(std::vector<node> after_dfs);
         void ts();
+        bool isConnected(std::vector< std::pair<int,unsigned int> > after_bfs);
         Graph();
 };
 
