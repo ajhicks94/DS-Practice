@@ -1,9 +1,11 @@
 #include "dynArr.h"
 
+#include <algorithm>
 #include <iostream>
 
 using std::cout;
 using std::copy;
+using std::min;
 
 template <typename T>
 void dynArr<T>::push_back(T c)
@@ -75,4 +77,35 @@ template <typename T>
 dynArr<T>::~dynArr()
 {
 	delete [] arr;
+}
+
+template <typename T>
+const size_t dynArr<T>::size() const
+{
+	return maxSize;
+}
+
+template <typename T>
+T& dynArr<T>::operator [] (size_t i) const
+{
+	return arr[i];
+}
+
+template <typename T>
+const bool dynArr<T>::operator== (const dynArr<T>& arr1) const
+{
+	bool ret = true;
+	
+	size_t size = min(this->size(), arr1.size());
+
+	for(size_t i = 0; i < size; ++i)
+	{
+		if (this->arr[i] != arr1[i])
+		{
+			ret = false;
+			break;
+		}
+	}
+
+	return ret;
 }
