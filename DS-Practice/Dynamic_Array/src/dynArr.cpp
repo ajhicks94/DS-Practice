@@ -1,13 +1,13 @@
-#include <cstring>
-#include <iostream>
-
 #include "dynArr.h"
+
+#include <iostream>
 
 using std::cout;
 using std::copy;
 
 template <typename T>
-void dynArr<T>::push_back(T c){
+void dynArr<T>::push_back(T c)
+{
 	T* newArr = new T[maxSize + 1];
 
 	copy(&arr[0], &arr[maxSize], newArr);
@@ -18,8 +18,9 @@ void dynArr<T>::push_back(T c){
 	maxSize++;
 }
 
-template <class T>
-void dynArr<T>::pop_back(){
+template <typename T>
+void dynArr<T>::pop_back()
+{
 	T* newArr = new T[maxSize - 1];
 
 	copy(&arr[0], &arr[maxSize - 1], newArr);
@@ -29,15 +30,16 @@ void dynArr<T>::pop_back(){
 	maxSize--;
 }
 /*
-template <class T>
+template <typename T>
 void dynArr<T>::emplace(size_t position, T c){
 	T * newArr = new T[maxSize + 1];
 
 	copy(&arr[0
 }
 */
-template <class T>
-void dynArr<T>::resize(size_t size){
+template <typename T>
+void dynArr<T>::resize(size_t size)
+{
 	T* newArr = new T[size];
 
 	copy(&arr[0], &arr[size], newArr);
@@ -47,26 +49,30 @@ void dynArr<T>::resize(size_t size){
 	maxSize = size;
 }
 
-template <class T>
-void dynArr<T>::print(){
+template <typename T>
+void dynArr<T>::print()
+{
 	for(size_t i = 0; i < maxSize; i++){
 		cout << arr[i] << " ";
 	}
 	cout << '\n';
 }
 
-template <class T>
-bool dynArr<T>::isEmpty(){
+template <typename T>
+bool dynArr<T>::isEmpty()
+{
 	return (maxSize == 0) ? true : false;
 }
 
-template <class T>
-dynArr<T>::dynArr(){
+template <typename T>
+dynArr<T>::dynArr()
+{
 	maxSize = 0;
 	arr = new T[maxSize];
 }
 
-template <class T>
-dynArr<T>::~dynArr(){
+template <typename T>
+dynArr<T>::~dynArr()
+{
 	delete [] arr;
 }

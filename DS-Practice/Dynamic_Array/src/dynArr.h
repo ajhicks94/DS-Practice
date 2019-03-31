@@ -1,12 +1,14 @@
 #ifndef DYNARR_H
 #define DYNARR_H
 
-template <class T>
-class dynArr{
+#include <stddef.h>
 
+template <typename T>
+class dynArr{
 	private:
 		T* arr;
 		size_t maxSize;
+
 	public:
 		void push_back(T c);      //Add an element to the end of the array
 		void pop_back();          //Remove the last element
@@ -18,4 +20,4 @@ class dynArr{
 		~dynArr();                //Destructor
 };
 
-#endif //VECTOR_H
+#endif
